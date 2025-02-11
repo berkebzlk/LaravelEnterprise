@@ -7,7 +7,18 @@ use Illuminate\Support\Facades\File;
 
 class MakeModule extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'make:module {name}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Create a new module';
 
     public function handle()
@@ -37,20 +48,10 @@ class MakeModule extends Command
             File::makeDirectory($modulePath . '/' . $directory, 0755, true);
         }
 
-        // ServiceProvider oluştur
-        $this->createServiceProvider($name);
-
+        $this->info("Creating module...");
+        $this->call('make:module-service-provider', ['name' => $name]);
+        $this->call('make:module-route-service-provider', ['name' => $name]);
+        $this->call('make:api-route', ['name' => $name]);
         $this->info("Module {$name} created successfully!");
     }
-
-    protected function createServiceProvider($name)
-    {
-        $stub = File::get(base_path('stubs/module-provider.stub')); // Stub dosyasını oluşturmanız gerekir
-        $content = str_replace('{{MODULE}}', $name, $stub);
-        
-        File::put(
-            app_path("Modules/{$name}/Providers/{$name}ServiceProvider.php"),
-            $content
-        );
-    }
-} 
+}
